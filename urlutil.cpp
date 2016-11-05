@@ -86,8 +86,8 @@ namespace urllib
         int connfd = urlConnect2(req.url()); 
         
         const string CRLF("\r\n");
-        string requestLine = "GET " + req.url() + " HTTP/1.1" + CRLF;
-        
+       // string requestLine = "GET " + req.url() + " HTTP/1.1" + CRLF;
+        string requestLine = "GET / HTTP/1.1" + CRLF; 
         string requestHeaders;
         auto headers = req.headers();
         for (auto& header : headers)
@@ -95,7 +95,15 @@ namespace urllib
             requestHeaders += header.first + ": " + header.second + CRLF;  
         }
         requestHeaders += CRLF;
-    
+        
+        write(connfd, requestLine.data(), requestLine.size());
+        write(connfd, requestHeaders.data(), requestHeaders.size());
+
+        char buf[8192*8];
+        int n;
+        while ((n = read(connfd, buf, sizeof(buf))) > 0)
+            printf("%d\n\n%s\n",n, buf);
+
         return req;
     }
 

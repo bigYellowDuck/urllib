@@ -52,11 +52,11 @@ bool Request::addHeader(const string& key, const string& value)
 
 void Request::initHeaders()
 {
-    headers_.push_back({"Accept", "text/html"});
-    headers_.push_back({"Accept-Encoding", "gzip, deflate, sdch"});
-    headers_.push_back({"Accept-Language", "en-US,en;q=0.5"});
     headers_.push_back({"Host", url_});
     headers_.push_back({"User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"});
+    headers_.push_back({"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"});
+    headers_.push_back({"Accept-Language", "en-US,en;q=0.5"});
+    headers_.push_back({"Accept-Encoding", "gzip, deflate, br"});
 }
 
 }  // end of namespace urllib
