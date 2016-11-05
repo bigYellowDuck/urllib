@@ -1,6 +1,8 @@
 #include "urlutil.h"
+#include "Request.h"
 
-#include <stdio.h>
+#include <iostream>
+
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -44,6 +46,7 @@ namespace urllib
         return sockfd;
     }
 
+
     int urlConnect2(const string& url)
     {
         int sockfd;
@@ -77,14 +80,25 @@ namespace urllib
         return sockfd;
     }
 
-    int urlOpen(const string& url)
+
+    Request urlOpen(const Request& req)
     {
-        return sizeof(url);
+        int connfd = urlConnect2(req.url()); 
+        
+        const string CRLF("\r\n");
+        string requestLine = "GET " + req.url() + " HTTP/1.1" + CRLF;
+        
+        string requestHeaders;
+        auto headers = req.headers();
+        for (auto& header : headers)
+        {
+            requestHeaders += header.first + ": " + header.second + CRLF;  
+        }
+        requestHeaders += CRLF;
+    
+        return req;
     }
 
 } // end of namespace urllib
-
-
-
 
 

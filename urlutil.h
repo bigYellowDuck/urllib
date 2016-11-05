@@ -6,6 +6,7 @@
 namespace urllib
 {
     
+    class Request;
     const int IPV4_ADDRLEN = 32;
     const int WEB_DEFAULT_PORT = 80;
 
@@ -14,7 +15,7 @@ namespace urllib
     int urlConnect(const std::string& addr);
     int urlConnect2(const std::string& url);
 
-    int urlOpen(const std::string& url);
+    Request urlOpen(const Request& req);
 
 }  // end of namespace urllib
 
