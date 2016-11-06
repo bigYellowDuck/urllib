@@ -101,9 +101,11 @@ namespace urllib
 
         char buf[8192*8];
         int n;
-        while ((n = read(connfd, buf, sizeof(buf))) > 0)
-            printf("%d\n\n%s\n",n, buf);
-
+        //while ((n = read(connfd, buf, sizeof(buf))) > 0)
+           // printf("%d\n\n%s\n",n, buf);
+        n = read(connfd, buf, sizeof(buf));
+        printf("%d\n%s\n", n, buf);
+        printf("%s\n", buf+1024);
         return req;
     }
 
