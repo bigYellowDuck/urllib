@@ -9,6 +9,8 @@ namespace urllib
     class Request;
     const int IPV4_ADDRLEN = 32;
     const int WEB_DEFAULT_PORT = 80;
+    const int _8K = 8192;
+    const std::string CRLF("\r\n");
 
     bool url2ip(const std::string& url, char* addr);
 

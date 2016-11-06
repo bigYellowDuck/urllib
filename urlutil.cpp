@@ -2,12 +2,14 @@
 #include "Request.h"
 
 #include <iostream>
+#include <fstream>
 
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <fcntl.h>
 
 namespace urllib
 {
@@ -77,6 +79,9 @@ namespace urllib
 
         ::freeaddrinfo(ressave);
         
+        int flag = ::fcntl(sockfd, F_GETFL, 0);
+        ::fcntl(sockfd, F_SETFL, flag | O_NONBLOCK);
+
         return sockfd;
     }
 
@@ -85,7 +90,6 @@ namespace urllib
     {
         int connfd = urlConnect2(req.url()); 
         
-        const string CRLF("\r\n");
        // string requestLine = "GET " + req.url() + " HTTP/1.1" + CRLF;
         string requestLine = "GET / HTTP/1.1" + CRLF; 
         string requestHeaders;
@@ -99,13 +103,31 @@ namespace urllib
         write(connfd, requestLine.data(), requestLine.size());
         write(connfd, requestHeaders.data(), requestHeaders.size());
 
-        char buf[8192*8];
+        char buf[_8K+1];
         int n;
-        //while ((n = read(connfd, buf, sizeof(buf))) > 0)
-           // printf("%d\n\n%s\n",n, buf);
-        n = read(connfd, buf, sizeof(buf));
-        printf("%d\n%s\n", n, buf);
-        printf("%s\n", buf+1024);
+        string resp;
+        resp.reserve(_8K*50);
+        int cnt = 0;   
+        while ((n = read(connfd, buf, sizeof(buf)-1)))
+        {
+            if (n < 0)
+            {
+                if (errno != EWOULDBLOCK)
+                {
+                    std::cout << "error" << std::endl;
+                    break;
+                }
+             }
+             else
+             {
+                 std::cout << n << "------------" << ++cnt << std::endl;
+                 resp += string(buf, buf+n);
+                 if (string(resp.end()-10, resp.end()).find("</html>") != string::npos)
+                     break;
+             }
+        }   
+        std::ofstream fcout("text.txt");
+        fcout << resp;
         return req;
     }
 
