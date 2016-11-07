@@ -1,8 +1,8 @@
 #include "urlutil.h"
 #include "Request.h"
+#include "Response.h"
 
 #include <iostream>
-#include <fstream>
 
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -82,41 +82,58 @@ namespace urllib
     }
 
 
-    Request urlOpen(const Request& req)
+    Response urlOpen(const Request& req)
     {
-        int connfd = urlConnect2(req.host()); 
+        char buf[_8K+1];
+        int n, cnt;      
+        string resp;      // response content
+        
+        int connfd = urlConnect2(req.host());    // connect to url:80
         
         string requestLine = "GET " + req.uri() + " HTTP/1.1" + CRLF;
         string requestHeaders;
         auto headers = req.headers();
         for (auto& header : headers)
-        {
             requestHeaders += header.first + ": " + header.second + CRLF;  
-        }
         requestHeaders += CRLF;
         
-        write(connfd, requestLine.data(), requestLine.size());
-        write(connfd, requestHeaders.data(), requestHeaders.size());
+        n = write(connfd, requestLine.data(), requestLine.size());   // send the request
+        n = write(connfd, requestHeaders.data(), requestHeaders.size());  // ignore the return value
         
-        std::cout << requestLine << requestHeaders << std::endl;
-
-        char buf[_8K+1];
-        int n;
-        string resp;
+        // std::cout << requestLine << requestHeaders << std::endl;
         resp.reserve(_8K*50);
-        int cnt = 0;   
         while ((n = read(connfd, buf, sizeof(buf)-1)) > 0)
         {
                 std::cout << n << "------------" << ++cnt << std::endl;
                 resp += string(buf, buf+n);
                 if (string(resp.end()-20, resp.end()).find("</html>") != string::npos)
                     break;
-        }   
-        std::ofstream fcout("text.txt");
-        fcout << resp;
-        return req;
+        }
+        
+        int statusCode = std::stoi(string(resp.begin()+9, resp.begin()+12));  // get the response status code
+        if (statusCode == HTTP_OK)
+        {
+            close(connfd);
+            return Response(resp);
+        }
+        else if (statusCode == HTTP_REDIRECT1 || statusCode == HTTP_REDIRECT2)
+        {
+            auto pos = resp.find("Location");
+            if (pos == string::npos)
+            {
+                std::cout << "Can't not find redirect url." << std::endl;
+                exit(2);
+            }
+            const string newUrl(resp.begin()+pos+10, resp.begin()+resp.find("\r\n", pos));
+            close(connfd);
+            return urlOpen(newUrl.data());   // urlopen again
+        }
+        else
+        {
+            std::cout << "Error! Http respone status code " << statusCode << "." << std::endl;
+            exit(2);
+        }
     }
 
 } // end of namespace urllib
-
 
