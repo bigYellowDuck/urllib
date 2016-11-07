@@ -9,7 +9,6 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <string.h>
-#include <fcntl.h>
 
 namespace urllib
 {
@@ -79,19 +78,15 @@ namespace urllib
 
         ::freeaddrinfo(ressave);
         
-        int flag = ::fcntl(sockfd, F_GETFL, 0);
-        ::fcntl(sockfd, F_SETFL, flag | O_NONBLOCK);
-
         return sockfd;
     }
 
 
     Request urlOpen(const Request& req)
     {
-        int connfd = urlConnect2(req.url()); 
+        int connfd = urlConnect2(req.host()); 
         
-       // string requestLine = "GET " + req.url() + " HTTP/1.1" + CRLF;
-        string requestLine = "GET / HTTP/1.1" + CRLF; 
+        string requestLine = "GET " + req.uri() + " HTTP/1.1" + CRLF;
         string requestHeaders;
         auto headers = req.headers();
         for (auto& header : headers)
@@ -102,29 +97,20 @@ namespace urllib
         
         write(connfd, requestLine.data(), requestLine.size());
         write(connfd, requestHeaders.data(), requestHeaders.size());
+        
+        std::cout << requestLine << requestHeaders << std::endl;
 
         char buf[_8K+1];
         int n;
         string resp;
         resp.reserve(_8K*50);
         int cnt = 0;   
-        while ((n = read(connfd, buf, sizeof(buf)-1)))
+        while ((n = read(connfd, buf, sizeof(buf)-1)) > 0)
         {
-            if (n < 0)
-            {
-                if (errno != EWOULDBLOCK)
-                {
-                    std::cout << "error" << std::endl;
+                std::cout << n << "------------" << ++cnt << std::endl;
+                resp += string(buf, buf+n);
+                if (string(resp.end()-20, resp.end()).find("</html>") != string::npos)
                     break;
-                }
-             }
-             else
-             {
-                 std::cout << n << "------------" << ++cnt << std::endl;
-                 resp += string(buf, buf+n);
-                 if (string(resp.end()-10, resp.end()).find("</html>") != string::npos)
-                     break;
-             }
         }   
         std::ofstream fcout("text.txt");
         fcout << resp;
