@@ -17,17 +17,21 @@ class Request
     // using defualt copy ctor/assignment, move ctor/assignment, dtor
  
     const std::string& url() const noexcept;
+    const std::string& host() const noexcept;
+    const std::string& uri() const noexcept;
     const std::vector<std::pair<const std::string, std::string>>& headers() const noexcept;
 
     bool addHeader(const std::string& key, const std::string& value);
+ 
  private:
+    void parseUrl();
     void initHeaders();
 
     std::string url_;
+    std::string host_;
+    std::string uri_;
     std::vector<std::pair<const std::string, std::string>> headers_;
 };
-
-
 
 }  // end of namespace urllib
 
