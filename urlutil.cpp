@@ -71,7 +71,7 @@ namespace urllib
         resp.reserve(_8K*50);
         while ((n = read(connfd, buf, sizeof(buf)-1)) > 0)
         {
-                std::cout << n << "------------" << ++cnt << std::endl;
+                // std::cout << n << "------------" << ++cnt << std::endl;
                 resp += string(buf, buf+n);
                 if (string(resp.end()-20, resp.end()).find("</html>") != string::npos)
                     break;
