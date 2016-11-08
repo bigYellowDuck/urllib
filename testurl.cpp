@@ -9,17 +9,8 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    if (argc != 2)
-    {
-        cout << "usage: testurl <url>" << endl;
-        return 0;
-    }
-
-    const string url(argv[1]);
     
-    urllib::Request req(url);
-//    req.addHeader("Accept-Language", "zh-CN,zh; q=0.8");
-    auto resp = urllib::urlOpen(req);
+    auto resp = urllib::urlOpen("http://www.csdn.net");
     cout << resp.info() << endl;
     ofstream fcout("xxx");
     fcout << resp.read();
