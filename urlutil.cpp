@@ -15,50 +15,17 @@ namespace urllib
 
     using std::string;
 
-    bool url2ip(const string& url, char* addr)
-    {
-        struct hostent* hptr;
-        
-        if ((hptr = ::gethostbyname(url.data())) == NULL)
-            return false;
-        
-        for (char** pptr = hptr->h_addr_list; *pptr != NULL; ++pptr)
-        {   
-            if (inet_ntop(hptr->h_addrtype, *pptr, addr, IPV4_ADDRLEN) == NULL)
-                return false;
-        }
 
-        return true;
-    }
-
-    int urlConnect(const string& addr)
-    {
-        struct sockaddr_in servaddr;
-        
-        int sockfd = ::socket(AF_INET, SOCK_STREAM, 0);
-
-        memset(&servaddr, 0, sizeof(servaddr));
-        servaddr.sin_family = AF_INET;
-        servaddr.sin_port = htons(WEB_DEFAULT_PORT);
-        inet_pton(AF_INET, addr.data(), &servaddr.sin_addr);
-
-        ::connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr));
-
-        return sockfd;
-    }
-
-
-    int urlConnect2(const string& url)
+    int urlConnect(const string& url)
     {
         int sockfd;
-        const char* port = "80"; 
         struct addrinfo hints, *res, *ressave;
         
         memset(&hints, 0, sizeof(struct addrinfo));
         hints.ai_family = AF_INET;
         hints.ai_socktype = SOCK_STREAM;
-
-        if (::getaddrinfo(url.data(), port, &hints, &res) != 0)
+        
+        if (::getaddrinfo(url.data(), HTTP_PORT, &hints, &res) != 0)
             return -1;
         ressave = res;
         
@@ -88,7 +55,7 @@ namespace urllib
         int n, cnt;      
         string resp;      // response content
         
-        int connfd = urlConnect2(req.host());    // connect to url:80
+        int connfd = urlConnect(req.host());    // connect to url:80
         
         string requestLine = "GET " + req.uri() + " HTTP/1.1" + CRLF;
         string requestHeaders;
@@ -126,7 +93,7 @@ namespace urllib
             }
             const string newUrl(resp.begin()+pos+10, resp.begin()+resp.find("\r\n", pos));
             close(connfd);
-            return urlOpen(newUrl.data());   // urlopen again
+            return urlOpen(newUrl);   // urlopen again
         }
         else
         {
