@@ -11,7 +11,7 @@ namespace urllib
 class Request
 {
  public:
-    explicit Request(const std::string& url);
+    Request(const std::string& url);
     Request(const char* url);
 
     // using defualt copy ctor/assignment, move ctor/assignment, dtor

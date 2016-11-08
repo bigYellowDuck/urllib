@@ -20,6 +20,7 @@ int main(int argc, char** argv)
     urllib::Request req(url);
 //    req.addHeader("Accept-Language", "zh-CN,zh; q=0.8");
     auto resp = urllib::urlOpen(req);
+    cout << resp.info() << endl;
     ofstream fcout("xxx");
     fcout << resp.read();
     return 0;
