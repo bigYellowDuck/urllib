@@ -81,7 +81,7 @@ namespace urllib
         if (statusCode == HTTP_OK)
         {
             close(connfd);
-            return Response(resp);
+            return Response(std::move(resp));
         }
         else if (statusCode == HTTP_REDIRECT1 || statusCode == HTTP_REDIRECT2)
         {
