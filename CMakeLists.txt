@@ -10,3 +10,4 @@ aux_source_directory(. DIR_SRCS)
 
 add_executable(testUrllib ${DIR_SRCS})
 
+target_link_libraries(testUrllib ssl crypto)

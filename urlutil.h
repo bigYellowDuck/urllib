@@ -13,11 +13,16 @@ namespace urllib
     const int HTTP_REDIRECT1 = 301;
     const int HTTP_REDIRECT2 = 302;
     const char* const HTTP_PORT = "80";
+    const char* const HTTPS_PORT = "443";
     const std::string CRLF("\r\n");
     
-    int urlConnect(const std::string& url);
+    int urlConnect(const std::string& url, bool isHTTP = true);
 
     Response urlOpen(const Request& req);
+
+    Response urlOpenHTTP(const Request& req);
+
+    Response urlOpenHTTPS(const Request& req);
 
 }  // end of namespace urllib
 

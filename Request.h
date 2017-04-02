@@ -15,7 +15,8 @@ class Request
     Request(const char* url);
 
     // using defualt copy ctor/assignment, move ctor/assignment, dtor
- 
+    
+    bool isHTTP() const noexcept;
     const std::string& url() const noexcept;
     const std::string& host() const noexcept;
     const std::string& uri() const noexcept;
@@ -27,6 +28,7 @@ class Request
     void parseUrl();
     void initHeaders();
 
+    bool isHTTP_;
     std::string url_;
     std::string host_;
     std::string uri_;
