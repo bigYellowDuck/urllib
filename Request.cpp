@@ -13,17 +13,24 @@ using std::cout;
 using std::endl;
 
 Request::Request(const string& url)
-    : url_(url)
+    : isHTTP_(true),
+      url_(url)
 {
     parseUrl();
     initHeaders();
 }
 
 Request::Request(const char* url)
-    : url_(string(url))
+    : isHTTP_(true),
+      url_(string(url))
 {
     parseUrl();
     initHeaders();
+}
+
+bool Request::isHTTP() const noexcept
+{
+    return isHTTP_;
 }
 
 const string& Request::url() const noexcept
@@ -72,17 +79,34 @@ void Request::parseUrl()
         cout << url_ << ": is not a valid URL." << endl;
         exit(2);
     }
+
     if (url_.size() > 1500)
     {
         cout << "url is too long." << endl;
         exit(2);
     }
-    if (url_.compare(0, 7, "http://") != 0)
+
+    if (url_.compare(0, 7, "http://") == 0)
     {
-        cout << "Only HTTP protocol is directly supported." << endl;
+        isHTTP_ = true;    
+    }
+    else if (url_.compare(0, 8, "https://") == 0)
+    {
+        isHTTP_ = false;
+    }
+    else
+    {
+        cout << "Only HTTP/HTTPS protocol is directly supported." << endl;
         exit(2);
     }
-    string tmp = string(url_.begin()+7, url_.end());   // remove "http://"
+
+    string tmp;
+
+    if (isHTTP_)
+        tmp = string(url_.begin()+7, url_.end());   // remove "http://"
+    else
+        tmp = string(url_.begin()+8, url_.end());   // remove "https://"
+
     auto pos = tmp.find("/");
     if (pos == string::npos)
     {
