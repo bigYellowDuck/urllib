@@ -1,6 +1,6 @@
 # urllib
 
-用C++模仿Python的urllib2库写到urlopen函数
+用C++模仿Python的urllib2库写到urlopen函数，支持HTTP/HTTPS。
 
 用法：
 auto resp = urllib::urlOpen("http://www.csdn.net");<br>
